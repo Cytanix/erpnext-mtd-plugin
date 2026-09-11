@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-09-11 22:37:54.870161",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "hmrc_api_section",
+  "enabled",
+  "environment",
+  "client_id",
+  "client_secret",
+  "application_name",
+  "application_version"
+ ],
+ "fields": [
+  {
+   "fieldname": "hmrc_api_section",
+   "fieldtype": "Section Break",
+   "label": "HMRC API"
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "default": "Sandbox",
+   "fieldname": "environment",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Environment",
+   "options": "Sandbox\nProduction",
+   "reqd": 1
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Client ID"
+  },
+  {
+   "fieldname": "client_secret",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "Client Secret"
+  },
+  {
+   "default": "ERPNext MTD",
+   "fieldname": "application_name",
+   "fieldtype": "Data",
+   "label": "Application Name"
+  },
+  {
+   "fieldname": "application_version",
+   "fieldtype": "Data",
+   "label": "Application Version"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-09-11 22:46:53.839304",
+ "modified_by": "Administrator",
+ "module": "ERPNext MTD",
+ "name": "HMRC Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
