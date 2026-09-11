@@ -64,3 +64,20 @@ class HMRCClient:
 			code=payload.get("code"),
 			message=payload.get("message"),
 		)
+
+	async def post(
+		self,
+		path: str,
+		*,
+		headers: Mapping[str, str] | None = None,
+		data: Mapping[str, Any] | None = None,
+		json: Mapping[str, Any] | None = None,
+	) -> dict[str, Any]:
+		response = await self._client.post(
+			path,
+			headers=headers,
+			data=data,
+			json=json,
+		)
+
+		return self._handle_response(response)
