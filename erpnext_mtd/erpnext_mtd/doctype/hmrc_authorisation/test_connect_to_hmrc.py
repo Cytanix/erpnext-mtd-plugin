@@ -10,6 +10,19 @@ from erpnext_mtd.hmrc.state import validate_state
 
 
 class IntegrationTestConnectToHMRC(IntegrationTestCase):
+	TEST_ENCRYPTION_KEY = "test-encryption-key"
+	def setUp(self) -> None:
+		super().setUp()
+		self.original_encryption_key = frappe.local.conf.get("encryption_key")
+		frappe.local.conf["encryption_key"] = self.TEST_ENCRYPTION_KEY
+
+	def tearDown(self) -> None:
+		if self.original_encryption_key is None:
+			frappe.local.conf.pop("encryption_key", None)
+		else:
+			frappe.local.conf["encryption_key"] = self.original_encryption_key
+		super().tearDown()
+
 	def test_connect_to_hmrc(self) -> None:
 		class Settings:
 			enabled = 1
@@ -33,7 +46,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 
 		state_data = validate_state(
 			state,
-			secret=frappe.local.conf.encryption_key.encode(),
+			secret=self.TEST_ENCRYPTION_KEY.encode(),
 		)
 
 		company = consume_oauth_session(
@@ -106,7 +119,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 
 		state_data = validate_state(
 			state,
-			secret=frappe.local.conf.encryption_key.encode(),
+			secret=self.TEST_ENCRYPTION_KEY.encode(),
 		)
 
 		self.assertEqual(state_data.company, "Cytanix R&D Ltd")
