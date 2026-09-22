@@ -7,6 +7,10 @@ from frappe.model.document import Document
 
 
 class HMRCSettings(Document):
+	enabled: int
+	environment: str
+	client_id: str
+
 	def validate(self):
 		if not self.enabled:
 			return
