@@ -15,12 +15,15 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		super().setUp()
 		self.original_encryption_key = frappe.local.conf.get("encryption_key")
 		frappe.local.conf["encryption_key"] = self.TEST_ENCRYPTION_KEY
+		self.original_user = frappe.session.user
+		frappe.session.user = "test-user"
 
 	def tearDown(self) -> None:
 		if self.original_encryption_key is None:
 			frappe.local.conf.pop("encryption_key", None)
 		else:
 			frappe.local.conf["encryption_key"] = self.original_encryption_key
+		frappe.session.user = self.original_user
 		super().tearDown()
 
 	def test_connect_to_hmrc(self) -> None:
@@ -32,7 +35,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		with (
 			patch.object(frappe, "get_single", return_value=Settings()),
 		):
-			url = connect_to_hmrc("Cytanix Ltd", user="test-user")
+			url = connect_to_hmrc("Cytanix Ltd")
 
 		parsed = urlparse(url)
 		query = parse_qs(parsed.query)
@@ -66,7 +69,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		with (
 			patch.object(frappe, "get_single", return_value=Settings()),
 		):
-			url = connect_to_hmrc("Cytanix Ltd", user="test-user")
+			url = connect_to_hmrc("Cytanix Ltd")
 
 		parsed = urlparse(url)
 
@@ -82,11 +85,15 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 			patch.object(frappe, "get_single", return_value=Settings()),
 		):
 			first = parse_qs(
-				urlparse(connect_to_hmrc("Cytanix Ltd", user="test-user")).query
+				urlparse(connect_to_hmrc("Cytanix Ltd")).query
 			)["state"][0]
 
 			second = parse_qs(
-				urlparse(connect_to_hmrc("Cytanix Ltd", user="test-user")).query
+				urlparse(connect_to_hmrc("Cytanix Ltd")).query
+			)["state"][0]
+
+			third = parse_qs(
+				urlparse(connect_to_hmrc("Cytanix Ltd")).query
 			)["state"][0]
 
 		self.assertNotEqual(first, second)
@@ -114,7 +121,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		with (
 			patch.object(frappe, "get_single", return_value=Settings()),
 		):
-			url = connect_to_hmrc("Cytanix R&D Ltd", user="test-user")
+			url = connect_to_hmrc("Cytanix R&D Ltd")
 
 		state = parse_qs(urlparse(url).query)["state"][0]
 

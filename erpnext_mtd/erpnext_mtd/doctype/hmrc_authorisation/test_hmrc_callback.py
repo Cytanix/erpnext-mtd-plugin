@@ -11,12 +11,15 @@ class IntegrationTestHMRCAuthCallback(IntegrationTestCase):
         super().setUp()
         self.original_encryption_key = frappe.local.conf.get("encryption_key")
         frappe.local.conf["encryption_key"] = self.TEST_ENCRYPTION_KEY
+        self.original_user = frappe.session.user
+        frappe.session.user = "test-user"
 
     def tearDown(self) -> None:
         if self.original_encryption_key is None:
             frappe.local.conf.pop("encryption_key", None)
         else:
             frappe.local.conf["encryption_key"] = self.original_encryption_key
+        frappe.session.user = self.original_user
         super().tearDown()
 
     def test_callback_consumes_oauth_session(self) -> None:

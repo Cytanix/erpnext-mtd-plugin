@@ -1,4 +1,3 @@
-import secrets
 from typing import cast
 
 import frappe
@@ -46,5 +45,5 @@ def hmrc_callback(state: str, code: str) -> None:
     consume_oauth_session(
         nonce=state_data.nonce,
         expected_company=state_data.company,
-        expected_user=state_data.user
+        expected_user=frappe.session.user
     )
