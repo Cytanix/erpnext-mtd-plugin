@@ -7,7 +7,7 @@ from frappe.utils import get_url
 from erpnext_mtd.erpnext_mtd.doctype.hmrc_settings.hmrc_settings import HMRCSettings
 from erpnext_mtd.hmrc.config import HMRCEnvironment
 from erpnext_mtd.hmrc.oauth import build_authorization_url
-from erpnext_mtd.hmrc.oauth_session import store_oauth_session
+from erpnext_mtd.hmrc.oauth_session import consume_oauth_session, store_oauth_session
 from erpnext_mtd.hmrc.state import create_state, validate_state
 
 
@@ -22,7 +22,7 @@ def connect_to_hmrc(company: str) -> str:
     state = create_state(company=company, secret=secret)
     state_data = validate_state(state=state, secret=secret)
 
-    store_oauth_session(nonce=state_data.nonce, company=company)
+    store_oauth_session(nonce=state_data.nonce, company=company, user=frappe.session.user)
 
     environment = HMRCEnvironment(settings.environment)
 
@@ -36,4 +36,15 @@ def connect_to_hmrc(company: str) -> str:
         redirect_uri=redirect_uri,
         scopes=("read:vat", "write:vat"),
         state=state,
+    )
+
+@frappe.whitelist()
+def hmrc_callback(state: str, code: str) -> None:
+    secret = frappe.local.conf.encryption_key.encode()
+
+    state_data = validate_state(state=state, secret=secret)
+    consume_oauth_session(
+        nonce=state_data.nonce,
+        expected_company=state_data.company,
+        expected_user=state_data.user
     )
