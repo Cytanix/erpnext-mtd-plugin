@@ -92,10 +92,6 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 				urlparse(connect_to_hmrc("Cytanix Ltd")).query
 			)["state"][0]
 
-			third = parse_qs(
-				urlparse(connect_to_hmrc("Cytanix Ltd")).query
-			)["state"][0]
-
 		self.assertNotEqual(first, second)
 
 	def test_connect_to_hmrc_rejects_disabled_integration(self) -> None:

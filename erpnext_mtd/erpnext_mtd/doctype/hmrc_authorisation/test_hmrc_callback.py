@@ -5,6 +5,7 @@ from erpnext_mtd.api.oauth import hmrc_callback
 from erpnext_mtd.hmrc.oauth_session import consume_oauth_session, store_oauth_session
 from erpnext_mtd.hmrc.state import OAuthStateError, create_state, validate_state
 
+
 class IntegrationTestHMRCAuthCallback(IntegrationTestCase):
     TEST_ENCRYPTION_KEY = "test-encryption-key"
     def setUp(self) -> None:
