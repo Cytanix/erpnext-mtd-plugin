@@ -24,7 +24,7 @@ class IntegrationTestHMRCAuthCallback(IntegrationTestCase):
 
         state = create_state(company="Cytanix Ltd",secret=secret)
         state_data = validate_state(state=state, secret=secret)
-        store_oauth_session(nonce=state_data.nonce, company=state_data.company)
+        store_oauth_session(nonce=state_data.nonce, company=state_data.company, user="test-user")
         hmrc_callback(state=state, code="test-authorisation-code")
         with self.assertRaises(OAuthStateError):
-            consume_oauth_session(nonce=state_data.nonce, expected_company="Cytanix Ltd")
+            consume_oauth_session(nonce=state_data.nonce, expected_company="Cytanix Ltd", expected_user="test-user")

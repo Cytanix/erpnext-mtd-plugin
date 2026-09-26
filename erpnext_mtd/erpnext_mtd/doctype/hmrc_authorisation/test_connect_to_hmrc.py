@@ -32,7 +32,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		with (
 			patch.object(frappe, "get_single", return_value=Settings()),
 		):
-			url = connect_to_hmrc("Cytanix Ltd")
+			url = connect_to_hmrc("Cytanix Ltd", user="test-user")
 
 		parsed = urlparse(url)
 		query = parse_qs(parsed.query)
@@ -52,6 +52,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		company = consume_oauth_session(
 			nonce=state_data.nonce,
 			expected_company="Cytanix Ltd",
+			expected_user="test-user"
 		)
 
 		self.assertEqual(company, "Cytanix Ltd")
@@ -65,7 +66,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		with (
 			patch.object(frappe, "get_single", return_value=Settings()),
 		):
-			url = connect_to_hmrc("Cytanix Ltd")
+			url = connect_to_hmrc("Cytanix Ltd", user="test-user")
 
 		parsed = urlparse(url)
 
@@ -81,11 +82,11 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 			patch.object(frappe, "get_single", return_value=Settings()),
 		):
 			first = parse_qs(
-				urlparse(connect_to_hmrc("Cytanix Ltd")).query
+				urlparse(connect_to_hmrc("Cytanix Ltd", user="test-user")).query
 			)["state"][0]
 
 			second = parse_qs(
-				urlparse(connect_to_hmrc("Cytanix Ltd")).query
+				urlparse(connect_to_hmrc("Cytanix Ltd", user="test-user")).query
 			)["state"][0]
 
 		self.assertNotEqual(first, second)
@@ -113,7 +114,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		with (
 			patch.object(frappe, "get_single", return_value=Settings()),
 		):
-			url = connect_to_hmrc("Cytanix R&D Ltd")
+			url = connect_to_hmrc("Cytanix R&D Ltd", user="test-user")
 
 		state = parse_qs(urlparse(url).query)["state"][0]
 
@@ -127,6 +128,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		company = consume_oauth_session(
 			nonce=state_data.nonce,
 			expected_company="Cytanix R&D Ltd",
+			expected_user="test-user"
 		)
 
 		self.assertEqual(company, "Cytanix R&D Ltd")
