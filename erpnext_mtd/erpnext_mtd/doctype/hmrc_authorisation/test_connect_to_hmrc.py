@@ -18,6 +18,8 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		frappe.local.conf["encryption_key"] = self.TEST_ENCRYPTION_KEY
 		self.original_user = frappe.session.user
 		frappe.session.user = "test-user"
+		self.permission_patcher = patch.object(frappe, "has_permission", return_value=True)
+		self.permission_patcher.start()
 
 	def tearDown(self) -> None:
 		if self.original_encryption_key is None:
@@ -25,6 +27,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		else:
 			frappe.local.conf["encryption_key"] = self.original_encryption_key
 		frappe.session.user = self.original_user
+		self.permission_patcher.stop()
 		super().tearDown()
 
 	def test_connect_to_hmrc(self) -> None:
@@ -88,6 +91,15 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 			second = parse_qs(urlparse(connect_to_hmrc("Cytanix Ltd")).query)["state"][0]
 
 		self.assertNotEqual(first, second)
+
+	def test_connect_to_hmrc_rejects_user_without_company_permission(self) -> None:
+		with (
+			patch.object(frappe, "has_permission", return_value=False) as has_permission,
+			self.assertRaises(frappe.PermissionError),
+		):
+			connect_to_hmrc("Cytanix Ltd")
+
+		has_permission.assert_called_once_with("Company", "write", "Cytanix Ltd")
 
 	def test_connect_to_hmrc_rejects_disabled_integration(self) -> None:
 		class Settings:

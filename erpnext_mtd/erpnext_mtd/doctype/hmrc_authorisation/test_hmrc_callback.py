@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import frappe
 from frappe.tests import IntegrationTestCase
 
@@ -11,6 +13,8 @@ class IntegrationTestHMRCAuthCallback(IntegrationTestCase):
 
 	def setUp(self) -> None:
 		super().setUp()
+		self.permission_patcher = patch.object(frappe, "has_permission", return_value=True)
+		self.permission_patcher.start()
 		self.original_encryption_key = frappe.local.conf.get("encryption_key")
 		frappe.local.conf["encryption_key"] = self.TEST_ENCRYPTION_KEY
 		self.original_user = frappe.session.user
@@ -22,6 +26,7 @@ class IntegrationTestHMRCAuthCallback(IntegrationTestCase):
 		else:
 			frappe.local.conf["encryption_key"] = self.original_encryption_key
 		frappe.session.user = self.original_user
+		self.permission_patcher.stop()
 		super().tearDown()
 
 	def test_callback_consumes_oauth_session(self) -> None:
@@ -35,3 +40,21 @@ class IntegrationTestHMRCAuthCallback(IntegrationTestCase):
 			consume_oauth_session(
 				nonce=state_data.nonce, expected_company="Cytanix Ltd", expected_user="test-user"
 			)
+
+	def test_callback_rejects_user_without_company_permission(self) -> None:
+		secret = self.TEST_ENCRYPTION_KEY.encode()
+
+		state = create_state(company="Cytanix Ltd", secret=secret)
+		state_data = validate_state(state=state, secret=secret)
+		store_oauth_session(
+			nonce=state_data.nonce,
+			company=state_data.company,
+			user="test-user",
+		)
+		with (
+			patch.object(frappe, "has_permission", return_value=False) as has_permission,
+			self.assertRaises(frappe.PermissionError),
+		):
+			hmrc_callback(state=state, code="test-authorisation-code")
+
+		has_permission.assert_called_once_with("Company", "write", "Cytanix Ltd")

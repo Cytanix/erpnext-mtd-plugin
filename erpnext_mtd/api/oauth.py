@@ -12,6 +12,12 @@ from erpnext_mtd.hmrc.state import create_state, validate_state
 
 @frappe.whitelist()
 def connect_to_hmrc(company: str) -> str:
+	if not frappe.has_permission("Company", "write", company):
+		frappe.throw(
+			"You do not have permission to connect to HMRC for this company.",
+			frappe.PermissionError,
+		)
+
 	settings = cast(HMRCSettings, frappe.get_single("HMRC Settings"))
 	if not settings.enabled:
 		frappe.throw("HMRC integration is not enabled. Please enable it in HMRC Settings.")
@@ -42,5 +48,12 @@ def hmrc_callback(state: str, code: str) -> None:
 
 	state_data = validate_state(state=state, secret=secret)
 	consume_oauth_session(
-		nonce=state_data.nonce, expected_company=state_data.company, expected_user=frappe.session.user
+		nonce=state_data.nonce,
+		expected_company=state_data.company,
+		expected_user=frappe.session.user,
 	)
+	if not frappe.has_permission("Company", "write", state_data.company):
+		frappe.throw(
+			"You do not have permission to connect to HMRC for this company.",
+			frappe.PermissionError,
+		)
