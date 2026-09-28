@@ -38,18 +38,28 @@ def test_resolve_client_connection_rejects_missing_port() -> None:
     request = MagicMock()
     request.remote_addr = "203.0.113.10"
     request.environ = {}
+    settings = MagicMock()
+    settings.trusted_proxies = ""
 
-    with patch("frappe.request", request):
-        with pytest.raises(FraudPreventionDataError):
+    with (
+        patch("frappe.request", request),
+        patch("frappe.get_single", return_value=settings),
+        pytest.raises(FraudPreventionDataError)
+        ):
             resolve_client_connection()
 
 def test_resolve_client_connection_rejects_invalid_port() -> None:
     request = MagicMock()
     request.remote_addr = "203.0.113.10"
     request.environ = {"REMOTE_PORT": "65536"}
+    settings = MagicMock()
+    settings.trusted_proxies = ""
 
-    with patch("frappe.request", request):
-        with pytest.raises(FraudPreventionDataError):
+    with (
+        patch("frappe.request", request),
+        patch("frappe.get_single", return_value=settings),
+        pytest.raises(FraudPreventionDataError)
+        ):
             resolve_client_connection()
 
 def test_resolve_client_connection_from_trusted_proxy() -> None:

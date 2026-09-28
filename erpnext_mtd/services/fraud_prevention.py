@@ -45,6 +45,10 @@ def resolve_client_connection() -> ClientConnection:
         raise FraudPreventionDataError(
             f"Client port is not in the valid range (1-65535): {port}"
             )
+    if not 1 <= port <= 65535:
+        raise FraudPreventionDataError(
+            f"Client port is not in the valid range (1-65535): {port}"
+        )
 
     return ClientConnection(
         public_ip=public_ip,
