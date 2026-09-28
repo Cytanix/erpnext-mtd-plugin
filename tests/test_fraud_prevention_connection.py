@@ -34,7 +34,7 @@ def test_resolve_client_connection_rejects_missing_ip() -> None:
         with pytest.raises(FraudPreventionDataError):
             resolve_client_connection()
 
-def resolve_client_connection_rejects_missing_port() -> None:
+def test_resolve_client_connection_rejects_missing_port() -> None:
     request = MagicMock()
     request.remote_addr = "203.0.113.10"
     request.environ = {}
@@ -43,7 +43,7 @@ def resolve_client_connection_rejects_missing_port() -> None:
         with pytest.raises(FraudPreventionDataError):
             resolve_client_connection()
 
-def resolve_client_connection_rejects_invalid_port() -> None:
+def test_resolve_client_connection_rejects_invalid_port() -> None:
     request = MagicMock()
     request.remote_addr = "203.0.113.10"
     request.environ = {"REMOTE_PORT": "65536"}
