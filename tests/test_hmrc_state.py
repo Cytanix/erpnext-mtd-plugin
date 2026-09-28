@@ -14,7 +14,11 @@ def test_state_round_trip() -> None:
 
 def test_tampered_state_is_rejected() -> None:
 	state = create_state(company="Cytanix Ltd", secret=secret)
-	tampered = state[:-1] + ("A" if state[-1] != "A" else "B")
+
+	payload, signature = state.split(".", maxsplit=1)
+
+	tampered_payload = ("A" if payload[0] != "A" else "B") + payload[1:]
+	tampered = f"{tampered_payload}.{signature}"
 
 	with pytest.raises(OAuthStateError):
 		validate_state(tampered, secret=secret)
