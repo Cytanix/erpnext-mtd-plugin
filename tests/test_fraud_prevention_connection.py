@@ -11,11 +11,12 @@ def test_resolve_client_connection() -> None:
 	request = MagicMock()
 	request.remote_addr = "203.0.113.10"
 	request.environ = {"REMOTE_PORT": "12345"}
+	request.headers = {}
 
 	settings = SimpleNamespace(
 		trusted_proxies="",
-		client_ip_header="X-Forwarded-For",
-		client_port_header="None",
+		client_ip_header="X-ERPNext-MTD-Client-IP",
+		client_port_header="X-ERPNext-MTD-Client-Port",
 	)
 	with (
 		patch("frappe.request", request),
@@ -72,14 +73,14 @@ def test_resolve_client_connection_from_trusted_proxy() -> None:
 	request = MagicMock()
 	request.remote_addr = "10.10.20.10"
 	request.headers = {
-		"X-Forwarded-For": "203.0.113.10",
-		"X-Client-Source-Port": "45678",
+		"X-ERPNext-MTD-Client-IP": "203.0.113.10",
+		"X-ERPNext-MTD-Client-Port": "45678",
 	}
 
 	settings = SimpleNamespace(
 		trusted_proxies="10.10.20.10",
-		client_ip_header="X-Forwarded-For",
-		client_port_header="X-Client-Source-Port",
+		client_ip_header="X-ERPNext-MTD-Client-IP",
+		client_port_header="X-ERPNext-MTD-Client-Port",
 	)
 	with (
 		patch("frappe.request", request),
@@ -91,25 +92,45 @@ def test_resolve_client_connection_from_trusted_proxy() -> None:
 	assert connection.public_port == 45678
 
 
-def test_resolve_client_connection_ignores_headers_from_untrusted_client() -> None:
+def test_resolve_client_connection_rejects_headers_from_untrusted_client() -> None:
 	request = MagicMock()
 	request.remote_addr = "203.0.113.10"
 	request.environ = {"REMOTE_PORT": "12345"}
 	request.headers = {
-		"X-Forwarded-For": "198.51.100.50",
-		"X-Client-Source-Port": "45678",
+		"X-ERPNext-MTD-Client-IP": "198.51.100.50",
+		"X-ERPNext-MTD-Client-Port": "45678",
 	}
 
 	settings = SimpleNamespace(
 		trusted_proxies="10.10.20.10",
-		client_ip_header="X-Forwarded-For",
-		client_port_header="X-Client-Source-Port",
+		client_ip_header="X-ERPNext-MTD-Client-IP",
+		client_port_header="X-ERPNext-MTD-Client-Port",
 	)
 	with (
 		patch("frappe.request", request),
 		patch("frappe.get_single", return_value=settings),
+		pytest.raises(FraudPreventionDataError),
 	):
-		connection = resolve_client_connection()
+		resolve_client_connection()
 
-	assert connection.public_ip == "203.0.113.10"
-	assert connection.public_port == 12345
+
+def test_resolve_client_connection_rejects_multiple_proxy_ips() -> None:
+	request = MagicMock()
+	request.remote_addr = "10.10.20.10"
+	request.headers = {
+		"X-ERPNext-MTD-Client-IP": "198.51.100.50, 203.0.113.10",
+		"X-ERPNext-MTD-Client-Port": "45678",
+	}
+
+	settings = SimpleNamespace(
+		trusted_proxies="10.10.20.10",
+		client_ip_header="X-ERPNext-MTD-Client-IP",
+		client_port_header="X-ERPNext-MTD-Client-Port",
+	)
+
+	with (
+		patch("frappe.request", request),
+		patch("frappe.get_single", return_value=settings),
+		pytest.raises(FraudPreventionDataError),
+	):
+		resolve_client_connection()

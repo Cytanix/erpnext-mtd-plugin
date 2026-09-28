@@ -27,15 +27,22 @@ def resolve_client_connection() -> ClientConnection:
 		public_ip = _get_proxy_header(settings.client_ip_header, "Client IP")
 		public_port = _get_proxy_header(settings.client_port_header, "Client Port")
 
-		public_ip = public_ip.split(",", 1)[0].strip()
+		public_ip = public_ip.strip()
+		if "," in public_ip:
+			raise FraudPreventionDataError("Client IP header must contain exactly one IP address.")
 	else:
+		if (settings.client_ip_header and request.headers.get(settings.client_ip_header)) or (
+			settings.client_port_header and request.headers.get(settings.client_port_header)
+		):
+			raise FraudPreventionDataError("Proxy headers are not allowed from an untrusted client.")
+
 		public_ip = remote_addr
 		public_port = request.environ.get("REMOTE_PORT")
 
 	try:
 		ip_address(public_ip)
 	except ValueError as exc:
-		raise FraudPreventionDataError(f"Client IP is invalid.: {public_ip}") from exc
+		raise FraudPreventionDataError(f"Client IP is invalid: {public_ip}") from exc
 
 	if public_port is None:
 		raise FraudPreventionDataError("Client port is unavailable.")

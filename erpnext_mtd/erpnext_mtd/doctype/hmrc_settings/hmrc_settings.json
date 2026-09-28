@@ -67,24 +67,26 @@
    "fieldtype": "Section Break",
    "label": "Fraud Prevention"
   },
-  {
-   "description": "IP addresses or CIDR networks of trusted reverse proxies, one per line. Forwarded client information is ignored unless the request originates from a trusted proxy.",
+{
+   "description": "IP addresses or CIDR networks of trusted reverse proxies, one per line. Proxy client headers are accepted only from these addresses; requests containing them from untrusted clients are rejected.",
    "fieldname": "trusted_proxies",
    "fieldtype": "Small Text",
    "label": "Trusted Proxies"
-  },
-  {
-   "default": "X-Forwarded-For",
+},
+{
+   "default": "X-ERPNext-MTD-Client-IP",
+   "description": "Header containing exactly one authoritative client IP address. The trusted proxy must overwrite this header using connection-derived information and must not preserve client-supplied values.",
    "fieldname": "client_ip_header",
    "fieldtype": "Data",
    "label": "Client IP Header"
-  },
-  {
-   "description": "Header containing the original client's public TCP port. Leave blank if the proxy does not provide it.",
+},
+{
+   "default": "X-ERPNext-MTD-Client-Port",
+   "description": "Header containing the original client's public TCP port. The trusted proxy must overwrite this header using connection-derived information and must not preserve client-supplied values.",
    "fieldname": "client_port_header",
    "fieldtype": "Data",
    "label": "Client Port Header"
-  }
+}
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
