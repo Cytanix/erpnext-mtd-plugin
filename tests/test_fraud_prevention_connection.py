@@ -48,10 +48,11 @@ def test_resolve_client_connection_rejects_missing_port() -> None:
         ):
             resolve_client_connection()
 
-def test_resolve_client_connection_rejects_invalid_port() -> None:
+@pytest.mark.parametrize("port", ["0", "-1", "65536", "abc"])
+def test_resolve_client_connection_rejects_invalid_port(port: str) -> None:
     request = MagicMock()
     request.remote_addr = "203.0.113.10"
-    request.environ = {"REMOTE_PORT": "65536"}
+    request.environ = {"REMOTE_PORT": port}
     settings = MagicMock()
     settings.trusted_proxies = ""
 
