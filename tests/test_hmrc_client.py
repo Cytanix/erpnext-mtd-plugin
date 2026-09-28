@@ -64,6 +64,7 @@ async def test_non_json_error_response() -> None:
 	assert exc.value.code is None
 	assert exc.value.message is None
 
+
 @pytest.mark.asyncio
 async def test_post_form_data() -> None:
 	async def handler(request: httpx.Request) -> httpx.Response:

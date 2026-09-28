@@ -57,6 +57,7 @@ async def exchange_authorization_code(
 		issued_at=datetime.now(UTC),
 	)
 
+
 async def refresh_access_token(
 	environment: HMRCEnvironment,
 	*,

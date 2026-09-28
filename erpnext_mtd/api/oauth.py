@@ -12,38 +12,35 @@ from erpnext_mtd.hmrc.state import create_state, validate_state
 
 @frappe.whitelist()
 def connect_to_hmrc(company: str) -> str:
-    settings = cast(HMRCSettings, frappe.get_single("HMRC Settings"))
-    if not settings.enabled:
-        frappe.throw("HMRC integration is not enabled. Please enable it in HMRC Settings.")
+	settings = cast(HMRCSettings, frappe.get_single("HMRC Settings"))
+	if not settings.enabled:
+		frappe.throw("HMRC integration is not enabled. Please enable it in HMRC Settings.")
 
-    secret = frappe.local.conf.encryption_key.encode()
+	secret = frappe.local.conf.encryption_key.encode()
 
-    state = create_state(company=company, secret=secret)
-    state_data = validate_state(state=state, secret=secret)
+	state = create_state(company=company, secret=secret)
+	state_data = validate_state(state=state, secret=secret)
 
-    store_oauth_session(nonce=state_data.nonce, company=company, user=frappe.session.user)
+	store_oauth_session(nonce=state_data.nonce, company=company, user=frappe.session.user)
 
-    environment = HMRCEnvironment(settings.environment)
+	environment = HMRCEnvironment(settings.environment)
 
-    redirect_uri = get_url(
-        "/api/method/erpnext_mtd.api.oauth.hmrc_callback"
-        )
+	redirect_uri = get_url("/api/method/erpnext_mtd.api.oauth.hmrc_callback")
 
-    return build_authorization_url(
-        environment,
-        client_id=settings.client_id,
-        redirect_uri=redirect_uri,
-        scopes=("read:vat", "write:vat"),
-        state=state,
-    )
+	return build_authorization_url(
+		environment,
+		client_id=settings.client_id,
+		redirect_uri=redirect_uri,
+		scopes=("read:vat", "write:vat"),
+		state=state,
+	)
+
 
 @frappe.whitelist()
 def hmrc_callback(state: str, code: str) -> None:
-    secret = frappe.local.conf.encryption_key.encode()
+	secret = frappe.local.conf.encryption_key.encode()
 
-    state_data = validate_state(state=state, secret=secret)
-    consume_oauth_session(
-        nonce=state_data.nonce,
-        expected_company=state_data.company,
-        expected_user=frappe.session.user
-    )
+	state_data = validate_state(state=state, secret=secret)
+	consume_oauth_session(
+		nonce=state_data.nonce, expected_company=state_data.company, expected_user=frappe.session.user
+	)

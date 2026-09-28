@@ -4,6 +4,7 @@ from erpnext_mtd.hmrc.state import OAuthStateError, create_state, validate_state
 
 secret = b"supersecretpassworddontshareidk"
 
+
 def test_state_round_trip() -> None:
 	state = create_state(company="Cytanix Ltd", secret=secret)
 

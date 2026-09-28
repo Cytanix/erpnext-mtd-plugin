@@ -11,6 +11,7 @@ from erpnext_mtd.hmrc.state import validate_state
 
 class IntegrationTestConnectToHMRC(IntegrationTestCase):
 	TEST_ENCRYPTION_KEY = "test-encryption-key"
+
 	def setUp(self) -> None:
 		super().setUp()
 		self.original_encryption_key = frappe.local.conf.get("encryption_key")
@@ -53,9 +54,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		)
 
 		company = consume_oauth_session(
-			nonce=state_data.nonce,
-			expected_company="Cytanix Ltd",
-			expected_user="test-user"
+			nonce=state_data.nonce, expected_company="Cytanix Ltd", expected_user="test-user"
 		)
 
 		self.assertEqual(company, "Cytanix Ltd")
@@ -84,13 +83,9 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		with (
 			patch.object(frappe, "get_single", return_value=Settings()),
 		):
-			first = parse_qs(
-				urlparse(connect_to_hmrc("Cytanix Ltd")).query
-			)["state"][0]
+			first = parse_qs(urlparse(connect_to_hmrc("Cytanix Ltd")).query)["state"][0]
 
-			second = parse_qs(
-				urlparse(connect_to_hmrc("Cytanix Ltd")).query
-			)["state"][0]
+			second = parse_qs(urlparse(connect_to_hmrc("Cytanix Ltd")).query)["state"][0]
 
 		self.assertNotEqual(first, second)
 
@@ -129,9 +124,7 @@ class IntegrationTestConnectToHMRC(IntegrationTestCase):
 		self.assertEqual(state_data.company, "Cytanix R&D Ltd")
 
 		company = consume_oauth_session(
-			nonce=state_data.nonce,
-			expected_company="Cytanix R&D Ltd",
-			expected_user="test-user"
+			nonce=state_data.nonce, expected_company="Cytanix R&D Ltd", expected_user="test-user"
 		)
 
 		self.assertEqual(company, "Cytanix R&D Ltd")

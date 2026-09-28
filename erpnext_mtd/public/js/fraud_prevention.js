@@ -21,14 +21,14 @@ function getScreen() {
 }
 
 function getTimezone() {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+	return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
 function getWindowSize() {
-    return {
-        width: window.innerWidth,
-        height: window.innerHeight
-    };
+	return {
+		width: window.innerWidth,
+		height: window.innerHeight,
+	};
 }
 
 export async function collectFraudPreventionData() {
