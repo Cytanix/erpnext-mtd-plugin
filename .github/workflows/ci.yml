@@ -9,6 +9,9 @@ on:
 concurrency:
   group: main-erpnext_mtd-${{ github.event.number }}
   cancel-in-progress: true
+  
+permissions:
+  contents: read
 
 jobs:
   tests:
