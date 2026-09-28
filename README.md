@@ -1,40 +1,82 @@
-### ERPNext MTD
+# ERPNext MTD
 
-Open-source Making Tax Digital integration for ERPNext with direct HMRC API support
+Open-source Making Tax Digital integration for ERPNext with direct HMRC API support.
 
-### Installation
+> [!WARNING]
+> ERPNext MTD is currently under active development and has not yet reached its
+> first beta release. Do not use it to submit production VAT returns.
 
-You can install this app using the [bench](https://github.com/frappe/bench) CLI:
+## About
+
+ERPNext MTD aims to provide a native, open-source integration between ERPNext
+and HMRC's Making Tax Digital APIs without requiring a third-party MTD service.
+
+The project is developed by Cytanix Ltd and is intended to support the complete
+VAT return workflow from ERPNext, including:
+
+- HMRC OAuth authorisation
+- HMRC fraud prevention headers
+- VAT obligation retrieval
+- VAT return calculation from ERPNext accounting data
+- VAT return submission
+- VAT return and submission history
+
+## Requirements
+
+- Frappe Framework v16
+- ERPNext v16
+- Python 3.14 or later
+
+## Installation
+
+ERPNext MTD has not yet reached a public release. For development and testing,
+it can be installed using Bench:
 
 ```bash
-cd $PATH_TO_YOUR_BENCH
-bench get-app $URL_OF_THIS_REPO --branch main
-bench install-app erpnext_mtd
+cd /path/to/frappe-bench
+bench get-app https://github.com/Cytanix/erpnext-mtd-plugin.git
+bench --site your-site install-app erpnext_mtd
+bench --site your-site migrate
 ```
 
-### Contributing
+## Development
 
-This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
+Install the development dependencies:
 
 ```bash
 cd apps/erpnext_mtd
-pre-commit install
+uv sync --group dev
 ```
 
-Pre-commit is configured to use the following tools for checking and formatting your code:
+Run the standalone tests with:
 
-- ruff
-- eslint
-- prettier
-- pyupgrade
-### CI
+```bash
+uv run pytest
+```
 
-This app can use GitHub Actions for CI. The following workflows are configured:
+Tests that require the Frappe environment should be run using the Bench
+environment.
 
-- CI: Installs this app and runs unit tests on every push to `develop` branch.
-- Linters: Runs [Frappe Semgrep Rules](https://github.com/frappe/semgrep-rules) and [pip-audit](https://pypi.org/project/pip-audit/) on every pull request.
+## Release Status
 
+The current codebase is pre-release.
 
-### License
+The first planned public beta will provide the minimum complete workflow needed
+to prepare and submit an HMRC VAT return from ERPNext.
 
-gpl-3.0
+Pre-1.0 releases may introduce breaking changes to configuration, APIs, and
+stored data.
+
+## Contributing
+
+Contributions, testing, and security reviews are welcome while the project is
+under development.
+
+Please open an issue before beginning substantial changes so implementation
+details can be discussed first.
+
+## License
+
+ERPNext MTD is licensed under the GNU General Public License v3.0.
+
+See `license.txt` for the full licence text.
