@@ -1,6 +1,8 @@
 import json
+import pickle
 
 import frappe
+import redis
 
 from .state import OAuthStateError
 
@@ -40,10 +42,20 @@ def consume_oauth_session(
 		raise OAuthStateError("Cache is not available")
 
 	key = _key(nonce)
-	value = frappe.cache.get_value(key)
+	redis_key = frappe.cache.make_key(key)
+
+	try:
+		value = frappe.cache.getdel(redis_key)
+	except redis.exceptions.ConnectionError as exc:
+		raise OAuthStateError("Cache is not available") from exc
 
 	if value is None:
 		raise OAuthStateError("OAuth state is unknown, expired or has already been used")
+
+	try:
+		value = pickle.loads(value)
+	except (pickle.PickleError, EOFError, ValueError, TypeError) as exc:
+		raise OAuthStateError("OAuth state is invalid") from exc
 
 	data = json.loads(value)
 	company = data.get("company")
@@ -61,5 +73,4 @@ def consume_oauth_session(
 	if user != expected_user:
 		raise OAuthStateError("OAuth state does not match the expected user")
 
-	frappe.cache.delete_value(key)
 	return company
