@@ -12,7 +12,11 @@
   "client_id",
   "client_secret",
   "application_name",
-  "application_version"
+  "application_version",
+  "fraud_prevention_section",
+  "trusted_proxies",
+  "client_ip_header",
+  "client_port_header"
  ],
  "fields": [
   {
@@ -57,13 +61,36 @@
    "fieldname": "application_version",
    "fieldtype": "Data",
    "label": "Application Version"
+  },
+  {
+   "fieldname": "fraud_prevention_section",
+   "fieldtype": "Section Break",
+   "label": "Fraud Prevention"
+  },
+  {
+   "description": "IP addresses or CIDR networks of trusted reverse proxies, one per line. Forwarded client information is ignored unless the request originates from a trusted proxy.",
+   "fieldname": "trusted_proxies",
+   "fieldtype": "Small Text",
+   "label": "Trusted Proxies"
+  },
+  {
+   "default": "X-Forwarded-For",
+   "fieldname": "client_ip_header",
+   "fieldtype": "Data",
+   "label": "Client IP Header"
+  },
+  {
+   "description": "Header containing the original client's public TCP port. Leave blank if the proxy does not provide it.",
+   "fieldname": "client_port_header",
+   "fieldtype": "Data",
+   "label": "Client Port Header"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-09-11 22:46:53.839304",
+ "modified": "2026-09-28 20:47:54.839843",
  "modified_by": "Administrator",
  "module": "ERPNext MTD",
  "name": "HMRC Settings",
