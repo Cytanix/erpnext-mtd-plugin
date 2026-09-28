@@ -43,7 +43,9 @@ def resolve_client_connection() -> ClientConnection:
 	try:
 		port = int(public_port)
 	except (TypeError, ValueError) as exc:
-		raise FraudPreventionDataError(f"Client port is not in the valid range (1-65535): {public_port}") from exc
+		raise FraudPreventionDataError(
+			f"Client port is not in the valid range (1-65535): {public_port}"
+		) from exc
 	if not 1 <= port <= 65535:
 		raise FraudPreventionDataError(f"Client port is not in the valid range (1-65535): {public_port}")
 
