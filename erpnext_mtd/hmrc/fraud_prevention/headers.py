@@ -40,12 +40,12 @@ def format_window_size(window_size: WindowSize) -> str:
 def build_headers(context: FraudPreventionContext) -> dict[str, str]:
 	return {
 		"Gov-Client-Connection-Method": CONNECTION_METHOD,
-		"Gov-Client-Browser-JS-User-Agent": encode(context.browser_js_user_agent),
+		"Gov-Client-Browser-JS-User-Agent": context.browser_js_user_agent,
 		"Gov-Client-Device-ID": context.device_id,
 		"Gov-Client-Public-IP": context.public_ip,
 		"Gov-Client-Public-IP-Timestamp": format_timestamp(context.public_ip_timestamp),
 		"Gov-Client-Public-Port": str(context.public_port),
-		"Gov-Client-Timezone": encode(context.timezone),
+		"Gov-Client-Timezone": context.timezone,
 		"Gov-Client-Screens": format_screens(context.screens),
 		"Gov-Client-Window-Size": format_window_size(context.window_size),
 		"Gov-Vendor-Product-Name": encode(context.vendor_product_name),

@@ -21,7 +21,12 @@ function getScreen() {
 }
 
 function getTimezone() {
-	return Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const offsetMinutes = -new Date().getTimezoneOffset();
+	const sign = offsetMinutes >= 0 ? "+" : "-";
+	const hours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, "0");
+	const minutes = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
+
+	return `UTC${sign}${hours}:${minutes}`;
 }
 
 function getWindowSize() {
