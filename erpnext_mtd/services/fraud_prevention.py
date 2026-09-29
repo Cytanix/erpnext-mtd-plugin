@@ -10,7 +10,9 @@ from erpnext import __version__
 from erpnext_mtd.hmrc.fraud_prevention.connection import ClientConnection
 from erpnext_mtd.hmrc.fraud_prevention.headers import FraudPreventionDataError
 from erpnext_mtd.hmrc.fraud_prevention.models import (
+	ForwardedHop,
 	FraudPreventionContext,
+	MultiFactor,
 	Screen,
 	WindowSize,
 )
@@ -75,6 +77,8 @@ def build_fraud_prevention_context(
 	browser_data: Any,
 	*,
 	connection: ClientConnection,
+	multi_factor: tuple[MultiFactor, ...] | None = None,
+	vendor_forwarded: tuple[ForwardedHop, ...] | None = None,
 	vendor_public_ip: str | None = None,
 ) -> FraudPreventionContext:
 	browser_data = _validate_browser_data(browser_data)
@@ -105,6 +109,8 @@ def build_fraud_prevention_context(
 		window_size=window_size,
 		browser_js_user_agent=browser_js_user_agent,
 		timezone=timezone,
+		multi_factor=multi_factor,
+		vendor_forwarded=vendor_forwarded,
 	)
 
 

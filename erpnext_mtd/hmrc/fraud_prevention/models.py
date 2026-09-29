@@ -17,6 +17,25 @@ class WindowSize:
 
 
 @dataclass(frozen=True, slots=True)
+class MultiFactor:
+	type: str
+	timestamp: datetime
+	unique_reference: str
+
+
+@dataclass(frozen=True, slots=True)
+class ForwardedHop:
+	by: str
+	for_: str
+
+
+# @dataclass(frozen=True, slots=True)
+# class VendorLicense:
+# software_name: str
+# license_hash: str
+
+
+@dataclass(frozen=True, slots=True)
 class FraudPreventionContext:
 	browser_js_user_agent: str
 	device_id: str
@@ -31,7 +50,9 @@ class FraudPreventionContext:
 	vendor_product_name: str
 	vendor_version: str
 
-	multi_factor: str | None = None
-	vendor_forwarded: str | None = None
-	vendor_license_ids: str | None = None
+	multi_factor: tuple[MultiFactor, ...] | None = None
+	vendor_forwarded: tuple[ForwardedHop, ...] | None = None
+	vendor_license_ids: str | None = (
+		None  # Currently unused, and not planned to be used in the near future, but included for completeness
+	)
 	vendor_public_ip: str | None = None

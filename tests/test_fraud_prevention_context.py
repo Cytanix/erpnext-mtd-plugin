@@ -7,7 +7,7 @@ import pytest
 
 from erpnext_mtd.hmrc.fraud_prevention.connection import ClientConnection
 from erpnext_mtd.hmrc.fraud_prevention.headers import FraudPreventionDataError
-from erpnext_mtd.hmrc.fraud_prevention.models import FraudPreventionContext
+from erpnext_mtd.hmrc.fraud_prevention.models import ForwardedHop, FraudPreventionContext, MultiFactor
 from erpnext_mtd.services.fraud_prevention import build_fraud_prevention_context
 
 
@@ -19,13 +19,22 @@ def client_connection() -> ClientConnection:
 	)
 
 
-def build_context(browser_data: Any) -> FraudPreventionContext:
+def build_context(
+	browser_data: Any,
+	*,
+	multi_factor: tuple[MultiFactor, ...] | None = None,
+	vendor_forwarded: tuple[ForwardedHop, ...] | None = None,
+	vendor_public_ip: str | None = None,
+) -> FraudPreventionContext:
 	with patch(
 		"erpnext_mtd.services.fraud_prevention.frappe.session", SimpleNamespace(user="spirit@example.com")
 	):
 		return build_fraud_prevention_context(
 			browser_data,
 			connection=client_connection(),
+			multi_factor=multi_factor,
+			vendor_forwarded=vendor_forwarded,
+			vendor_public_ip=vendor_public_ip,
 		)
 
 
@@ -62,6 +71,33 @@ def test_build_fraud_prevention_context() -> None:
 	assert context.screens[0].height == 1080
 	assert context.window_size.width == 1280
 	assert context.window_size.height == 720
+
+
+def test_build_fraud_prevention_context_preserves_optional_data() -> None:
+	multi_factor = (
+		MultiFactor(
+			type="TOTP",
+			timestamp=datetime(2026, 9, 29, 20, 0, tzinfo=UTC),
+			unique_reference="factor-one",
+		),
+	)
+	vendor_forwarded = (
+		ForwardedHop(
+			by="203.0.113.6",
+			for_="198.51.100.0",
+		),
+	)
+
+	context = build_context(
+		valid_browser_data(),
+		multi_factor=multi_factor,
+		vendor_forwarded=vendor_forwarded,
+		vendor_public_ip="203.0.113.6",
+	)
+
+	assert context.multi_factor == multi_factor
+	assert context.vendor_forwarded == vendor_forwarded
+	assert context.vendor_public_ip == "203.0.113.6"
 
 
 def test_build_fraud_prevention_context_rejects_invalid_device_id() -> None:
