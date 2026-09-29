@@ -11,8 +11,8 @@ from typing import Any
 from uuid import UUID
 
 import frappe
-from erpnext import __version__
 
+from erpnext_mtd import __version__
 from erpnext_mtd.hmrc.fraud_prevention.connection import ClientConnection
 from erpnext_mtd.hmrc.fraud_prevention.headers import FraudPreventionDataError
 from erpnext_mtd.hmrc.fraud_prevention.models import (

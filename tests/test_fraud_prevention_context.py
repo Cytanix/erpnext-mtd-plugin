@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 import pytest
 
+from erpnext_mtd import __version__
 from erpnext_mtd.hmrc.fraud_prevention.connection import ClientConnection
 from erpnext_mtd.hmrc.fraud_prevention.headers import FraudPreventionDataError
 from erpnext_mtd.hmrc.fraud_prevention.models import ForwardedHop, FraudPreventionContext, MultiFactor
@@ -248,3 +249,10 @@ def test_build_fraud_prevention_context_rejects_excessive_screens() -> None:
 
 	with pytest.raises(FraudPreventionDataError):
 		build_context(browser_data)
+
+
+def test_build_fraud_prevention_context_uses_plugin_version() -> None:
+	browser_data = valid_browser_data()
+	context = build_context(browser_data)
+
+	assert context.vendor_version == __version__
