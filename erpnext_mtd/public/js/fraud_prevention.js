@@ -1,3 +1,9 @@
+// ERPNext MTD
+//
+// Copyright (C) 2026 Cytanix Ltd.
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 const DEVICE_ID_KEY = "erpnext_mtd_device_id";
 
 function getDeviceId() {

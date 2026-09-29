@@ -1,3 +1,9 @@
+# ERPNext MTD
+#
+# Copyright (C) 2026 Cytanix Ltd.
+#
+# SPDX-License-Identifier: GPL-3.0-only
+
 import base64
 import hashlib
 import hmac

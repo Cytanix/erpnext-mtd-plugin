@@ -37,7 +37,8 @@ node_modules/
 jspm_packages/
 
 # IDEs and editors
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .vs/
 .idea/
 .kdev4/

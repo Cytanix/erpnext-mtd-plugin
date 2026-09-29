@@ -1,12 +1,13 @@
 [project]
 name = "erpnext_mtd"
 authors = [
-    { name = "Cytanix Ltd", email = "spirit.pearce@gmail.com"}
+    { name = "Cytanix Ltd.", email = "spirit.pearce@gmail.com"}
 ]
 description = "Open-source Making Tax Digital integration for ERPNext with direct HMRC API support"
 requires-python = ">=3.14"
 readme = "README.md"
 dynamic = ["version"]
+license = "GPL-3.0-only"
 dependencies = [
     # "frappe~=16.0.0" # Installed and managed by bench.
     "httpx>=0.28.1",

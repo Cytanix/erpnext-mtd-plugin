@@ -1,0 +1,50 @@
+{
+    "psi-header.config": {
+        "author": "Cytanix Ltd.",
+        "company": "Cytanix Ltd.",
+        "copyrightHolder": "Cytanix Ltd.",
+        "license": "GPL-3.0-only",
+        "blankLinesAfter": 1
+    },
+    "psi-header.templates": [
+        {
+            "language": "python",
+            "template": [
+                "ERPNext MTD",
+                "",
+		        "Copyright (C) 2026 Cytanix Ltd.",
+		        "",
+		        "SPDX-License-Identifier: GPL-3.0-only"
+	]
+        },
+        {
+            "language": "javascript",
+            "template": [
+                "ERPNext MTD",
+                "",
+                "Copyright (C) 2026 Cytanix Ltd.",
+                "",
+                "SPDX-License-Identifier: GPL-3.0-only"
+            ]
+        }
+    ],
+    "psi-header.lang-config": [
+        {
+            "language": "python",
+            "begin": "",
+            "prefix": "# ",
+            "suffix": "",
+            "end": "",
+            "forceToTop": true
+        },
+        {
+            "language": "javascript",
+            "begin": "",
+            "prefix": "// ",
+            "suffix": "",
+            "end": "",
+            "forceToTop": true
+        }
+    ]
+
+}
