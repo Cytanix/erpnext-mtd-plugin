@@ -100,6 +100,7 @@ jobs:
           bench get-app --branch version-16 payments https://github.com/frappe/payments
           bench get-app erpnext_mtd $GITHUB_WORKSPACE
           bench setup requirements --dev
+          ./env/bin/python -m pip install pytest pytest-asyncio
           bench new-site --db-root-password root --admin-password admin test_site
           bench --site test_site install-app payments
           bench --site test_site install-app erpnext
@@ -119,4 +120,4 @@ jobs:
       - name: Run Pytest Suite
         working-directory: /home/runner/frappe-bench
         run: |
-          ./env/bin/pytest apps/erpnext_mtd/tests
+          ./env/bin/python -m pytest apps/erpnext_mtd/tests
