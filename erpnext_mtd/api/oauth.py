@@ -49,7 +49,12 @@ def connect_to_hmrc(company: str) -> str:
 
 
 @frappe.whitelist()
-def hmrc_callback(state: str, code: str) -> None:
+def hmrc_callback(
+	state: str,
+	code: str,
+	error: str | None = None,
+	error_description: str | None = None,
+) -> None:
 	secret = frappe.local.conf.encryption_key.encode()
 
 	state_data = validate_state(state=state, secret=secret)
@@ -63,3 +68,9 @@ def hmrc_callback(state: str, code: str) -> None:
 			"You do not have permission to connect to HMRC for this company.",
 			frappe.PermissionError,
 		)
+
+	if error is not None:
+		frappe.throw("HMRC authorisation was not completed.")
+
+	if not code:
+		frappe.throw("HMRC did not return an authorisation code.")

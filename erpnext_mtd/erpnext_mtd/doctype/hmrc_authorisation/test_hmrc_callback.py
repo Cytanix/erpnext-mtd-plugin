@@ -64,3 +64,74 @@ class IntegrationTestHMRCAuthCallback(IntegrationTestCase):
 			hmrc_callback(state=state, code="test-authorisation-code")
 
 		has_permission.assert_called_once_with("Company", "write", "Cytanix Ltd")
+
+
+def test_callback_handles_authorisation_denial(self) -> None:
+	secret = self.TEST_ENCRYPTION_KEY.encode()
+
+	state = create_state(company="Cytanix Ltd", secret=secret)
+	state_data = validate_state(state=state, secret=secret)
+	store_oauth_session(
+		nonce=state_data.nonce,
+		company=state_data.company,
+		user="test-user",
+	)
+
+	with self.assertRaises(frappe.ValidationError) as exc:
+		hmrc_callback(
+			state=state,
+			error="access_denied",
+			error_description="The user denied access.",
+		)
+
+	self.assertIn("HMRC authorisation was not completed.", str(exc.exception))
+
+	with self.assertRaises(OAuthStateError):
+		consume_oauth_session(
+			nonce=state_data.nonce,
+			expected_company="Cytanix Ltd",
+			expected_user="test-user",
+		)
+
+
+def test_callback_rejects_missing_code_and_error(self) -> None:
+	secret = self.TEST_ENCRYPTION_KEY.encode()
+
+	state = create_state(company="Cytanix Ltd", secret=secret)
+	state_data = validate_state(state=state, secret=secret)
+	store_oauth_session(
+		nonce=state_data.nonce,
+		company=state_data.company,
+		user="test-user",
+	)
+
+	with self.assertRaises(frappe.ValidationError) as exc:
+		hmrc_callback(state=state)
+
+	self.assertIn(
+		"HMRC did not return an authorisation code.",
+		str(exc.exception),
+	)
+
+
+def test_callback_does_not_expose_error_description(self) -> None:
+	secret = self.TEST_ENCRYPTION_KEY.encode()
+
+	state = create_state(company="Cytanix Ltd", secret=secret)
+	state_data = validate_state(state=state, secret=secret)
+	store_oauth_session(
+		nonce=state_data.nonce,
+		company=state_data.company,
+		user="test-user",
+	)
+
+	upstream_description = "<script>alert('nope')</script>"
+
+	with self.assertRaises(frappe.ValidationError) as exc:
+		hmrc_callback(
+			state=state,
+			error="access_denied",
+			error_description=upstream_description,
+		)
+
+	self.assertNotIn(upstream_description, str(exc.exception))
