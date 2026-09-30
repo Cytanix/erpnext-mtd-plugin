@@ -24,3 +24,7 @@ class HMRCRequestError(HMRCError):
 
 		detail = message or code or "Unknown HMRC API error"
 		super().__init__(f"HMRC API returned HTTP {status_code}: {detail}")
+
+
+class HMRCProtocolError(HMRCError):
+	"""HMRC returned a response that does not match the expected protocol."""

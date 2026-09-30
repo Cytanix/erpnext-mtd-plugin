@@ -11,6 +11,7 @@ import httpx
 import pytest
 
 from erpnext_mtd.hmrc.config import HMRCEnvironment
+from erpnext_mtd.hmrc.exceptions import HMRCProtocolError
 from erpnext_mtd.hmrc.models import OAuthToken
 from erpnext_mtd.hmrc.oauth import build_authorization_url, exchange_authorization_code, refresh_access_token
 
@@ -121,3 +122,71 @@ async def test_refresh_access_token() -> None:
 
 	assert token.access_token == "access-2"
 	assert token.refresh_token == "refresh-new"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+	("field", "value"),
+	[
+		("access_token", None),
+		("access_token", ""),
+		("token_type", None),
+		("token_type", ""),
+		("expires_in", None),
+		("expires_in", "14400"),
+		("expires_in", 0),
+		("expires_in", -1),
+		("expires_in", True),
+		("refresh_token", None),
+		("refresh_token", ""),
+		("scope", 123),
+	],
+)
+async def test_exchange_rejects_invalid_token_response(
+	field: str,
+	value: object,
+) -> None:
+	payload = {
+		"access_token": "access-1",
+		"token_type": "bearer",
+		"expires_in": 14400,
+		"refresh_token": "refresh-1",
+		"scope": "read:vat write:vat",
+	}
+	payload[field] = value
+
+	async def handler(request: httpx.Request) -> httpx.Response:
+		return httpx.Response(200, json=payload)
+
+	with pytest.raises(HMRCProtocolError):
+		await exchange_authorization_code(
+			HMRCEnvironment.SANDBOX,
+			client_id="test-client",
+			client_secret="test-secret",
+			code="test-code",
+			redirect_uri="https://example.com/callback",
+			transport=httpx.MockTransport(handler),
+		)
+
+
+@pytest.mark.asyncio
+async def test_exchange_rejects_missing_token_field() -> None:
+	async def handler(request: httpx.Request) -> httpx.Response:
+		return httpx.Response(
+			200,
+			json={
+				"token_type": "bearer",
+				"expires_in": 14400,
+				"refresh_token": "refresh-1",
+			},
+		)
+
+	with pytest.raises(HMRCProtocolError):
+		await exchange_authorization_code(
+			HMRCEnvironment.SANDBOX,
+			client_id="test-client",
+			client_secret="test-secret",
+			code="test-code",
+			redirect_uri="https://example.com/callback",
+			transport=httpx.MockTransport(handler),
+		)

@@ -11,6 +11,7 @@ import httpx
 
 from .client import HMRCClient
 from .config import HMRCEnvironment
+from .exceptions import HMRCProtocolError
 from .models import OAuthToken
 
 
@@ -54,14 +55,7 @@ async def exchange_authorization_code(
 			},
 		)
 
-	return OAuthToken(
-		access_token=payload["access_token"],
-		token_type=payload["token_type"],
-		expires_in=payload["expires_in"],
-		refresh_token=payload["refresh_token"],
-		scope=payload.get("scope"),
-		issued_at=datetime.now(UTC),
-	)
+	return _parse_token_response(payload)
 
 
 async def refresh_access_token(
@@ -83,11 +77,43 @@ async def refresh_access_token(
 			},
 		)
 
+	return _parse_token_response(
+		payload,
+		fallback_refresh_token=refresh_token,
+	)
+
+
+def _parse_token_response(
+	payload: dict[str, object],
+	*,
+	fallback_refresh_token: str | None = None,
+) -> OAuthToken:
+	access_token = payload.get("access_token")
+	token_type = payload.get("token_type")
+	expires_in = payload.get("expires_in")
+	refresh_token = payload.get("refresh_token", fallback_refresh_token)
+	scope = payload.get("scope")
+
+	if not isinstance(access_token, str) or not access_token.strip():
+		raise HMRCProtocolError("Invalid OAuth token response: access_token")
+
+	if not isinstance(token_type, str) or not token_type.strip():
+		raise HMRCProtocolError("Invalid OAuth token response: token_type")
+
+	if not isinstance(expires_in, int) or isinstance(expires_in, bool) or expires_in <= 0:
+		raise HMRCProtocolError("Invalid OAuth token response: expires_in")
+
+	if not isinstance(refresh_token, str) or not refresh_token.strip():
+		raise HMRCProtocolError("Invalid OAuth token response: refresh_token")
+
+	if scope is not None and not isinstance(scope, str):
+		raise HMRCProtocolError("Invalid OAuth token response: scope")
+
 	return OAuthToken(
-		access_token=payload["access_token"],
-		token_type=payload["token_type"],
-		expires_in=payload["expires_in"],
-		refresh_token=payload.get("refresh_token", refresh_token),
-		scope=payload.get("scope"),
+		access_token=access_token,
+		token_type=token_type,
+		expires_in=expires_in,
+		refresh_token=refresh_token,
+		scope=scope,
 		issued_at=datetime.now(UTC),
 	)

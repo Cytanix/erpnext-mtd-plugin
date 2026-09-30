@@ -58,17 +58,37 @@ class HMRCClient:
 	@staticmethod
 	def _handle_response(response: httpx.Response) -> dict[str, Any]:
 		if response.is_success:
-			return response.json()
+			if not response.content:
+				return {}
+
+			try:
+				payload = response.json()
+			except ValueError as exc:
+				raise HMRCRequestError(
+					status_code=response.status_code,
+					message="HMRC returned an invalid JSON response.",
+				) from exc
+
+			if not isinstance(payload, dict):
+				raise HMRCRequestError(
+					status_code=response.status_code,
+					message="HMRC returned an unexpected JSON response.",
+				)
+
+			return payload
 
 		try:
 			payload = response.json()
 		except ValueError:
 			payload = {}
 
+		if not isinstance(payload, dict):
+			payload = {}
+
 		raise HMRCRequestError(
 			status_code=response.status_code,
-			code=payload.get("code"),
-			message=payload.get("message"),
+			code=payload.get("code") or payload.get("error"),
+			message=payload.get("message") or payload.get("error_description"),
 		)
 
 	async def post(
