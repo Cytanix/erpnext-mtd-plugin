@@ -66,7 +66,7 @@ def validate_state(
 
 		payload = base64.urlsafe_b64decode(payload_part + "=" * (-len(payload_part) % 4))
 		signature = base64.urlsafe_b64decode(signature_part + "=" * (-len(signature_part) % 4))
-	except (ValueError, TypeError):
+	except ValueError, TypeError:
 		raise OAuthStateError("Invalid OAuth state.") from None
 
 	expected = _sign(payload, secret)
