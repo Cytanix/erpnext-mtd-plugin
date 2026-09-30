@@ -22,9 +22,7 @@ class HMRCAuthorisation(Document):
 		self.token_type = token.token_type
 		self.scope = token.scope or ""
 		self.issued_at = token.issued_at
-
-		if token.expires_at is not None:
-			self.expires_at = token.expires_at
+		self.expires_at = token.expires_at
 
 		self.last_refreshed_at = datetime.now(UTC)
 		self.status = "Authorised"

@@ -18,15 +18,16 @@ class OAuthToken:
 	issued_at: datetime | None = None
 
 	@property
-	def expires_at(self) -> datetime:
+	def expires_at(self) -> datetime | None:
 		if self.issued_at is None:
 			return None
 
 		return self.issued_at + timedelta(seconds=self.expires_in)
 
 	def is_expired(self, *, now: datetime | None = None) -> bool:
-		if self.expires_at is None:
-			return False
+		expires_at = self.expires_at
+		if expires_at is None:
+			return True
 
 		now = now or datetime.now(UTC)
 		return now >= self.expires_at

@@ -190,3 +190,16 @@ async def test_exchange_rejects_missing_token_field() -> None:
 			redirect_uri="https://example.com/callback",
 			transport=httpx.MockTransport(handler),
 		)
+
+
+def test_token_with_unknown_issuance_is_expired() -> None:
+	token = OAuthToken(
+		access_token="access",
+		token_type="bearer",
+		expires_in=14_400,
+		refresh_token="refresh",
+		issued_at=None,
+	)
+
+	assert token.expires_at is None
+	assert token.is_expired()

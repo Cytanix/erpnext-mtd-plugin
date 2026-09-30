@@ -48,3 +48,25 @@ class IntegrationTestHMRCAuthorisation(FrappeTestCase):
 		self.assertEqual(doc.status, "Authorised")
 		self.assertEqual(doc.last_error, "")
 		self.assertIsNotNone(doc.last_refreshed_at)
+
+	def test_apply_token_clears_stale_expiry_when_unknown(self) -> None:
+		doc = HMRCAuthorisation(
+			{
+				"doctype": "HMRC Authorisation",
+				"company": "Cytanix Ltd",
+			}
+		)
+		doc.expires_at = datetime(2026, 9, 30, 12, 0, tzinfo=UTC)
+
+		token = OAuthToken(
+			access_token="new-access-token",
+			token_type="bearer",
+			expires_in=14_400,
+			refresh_token="new-refresh-token",
+			issued_at=None,
+		)
+
+		doc.apply_token(token)
+
+		self.assertIsNone(doc.issued_at)
+		self.assertIsNone(doc.expires_at)
